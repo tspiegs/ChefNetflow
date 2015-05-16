@@ -1,0 +1,61 @@
+#! /bin/bash
+#
+# chkconfig: 2345 80 30
+# description: SoftFlow Deamon Service
+### BEGIN INIT INFO
+# Provides: SOFTFLOWD
+# Short-Description: Start/Stop/Restart SOFTFLOWD TCP Flow Probe
+### END INIT INFO
+#
+# SOFTFLOWD This init.d script is used to start SOFTFLOWD.
+#
+SOFTFLOWD=/usr/sbin/softflowd
+VERSION="5"
+INTERFACE=<%= @interface %>
+COLLECTOR=<%= @toIP %>
+CPORT=<%= @toport %>
+PID_FILE="/var/run/softflowd.pid"
+OPTIONS="-v ${VERSION} -i ${INTERFACE} -n ${COLLECTOR}:${CPORT} -T full -p ${PID_FILE}"
+ 
+start_SOFTFLOWD() {
+${SOFTFLOWD} ${OPTIONS} > /dev/null &
+return 1
+}
+ 
+stop_SOFTFLOWD() {
+if [ -f ${PID_FILE} ]; then
+kill `cat ${PID_FILE}` 2>1 /dev/null
+\rm ${PID_FILE}
+fi
+}
+ 
+########
+case "$1" in
+ 
+start)
+echo -n "Starting SOFTFLOWD"
+start_SOFTFLOWD;
+echo " Done."
+;;
+ 
+stop)
+echo -n "Stopping SOFTFLOWD"
+stop_SOFTFLOWD;
+echo " Done."
+;;
+ 
+restart)
+echo -n "Restarting SOFTFLOWD"
+stop_SOFTFLOWD;
+sleep 1
+start_SOFTFLOWD;
+echo " Done."
+;;
+ 
+*)
+ 
+echo "Usage: /etc/init.d/SOFTFLOWD {start|stop|restart}"
+exit 1
+esac
+exit 0
+ 
